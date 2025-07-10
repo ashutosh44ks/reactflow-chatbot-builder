@@ -3,12 +3,10 @@ import { useDnD } from "../hooks/useDnD";
 import { nodeTypes, SIDEBAR_WIDTH } from "./constants";
 
 function NodesPanel() {
-  const [_, setType] = useDnD();
+  const temp = useDnD();
+  const setType = temp[1];
 
-  const onDragStart = (
-    event: DragEvent<HTMLDivElement>,
-    nodeType: string
-  ) => {
+  const onDragStart = (event: DragEvent<HTMLDivElement>, nodeType: string) => {
     setType(nodeType);
     event.dataTransfer.effectAllowed = "move";
   };

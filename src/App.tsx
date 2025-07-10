@@ -65,7 +65,7 @@ export default function App() {
 
   // NodesPanel (DND) states & functions
   const { screenToFlowPosition } = useReactFlow();
-  const [type, setType] = useDnD();
+  const [type] = useDnD();
   const onDragOver: React.DragEventHandler<HTMLDivElement> = useCallback(
     (event) => {
       event.preventDefault();
@@ -96,11 +96,8 @@ export default function App() {
     [screenToFlowPosition, type]
   );
   const onDragStart: React.DragEventHandler<HTMLDivElement> = (
-    event: React.DragEvent<HTMLDivElement>,
-    nodeType: string
+    event: React.DragEvent<HTMLDivElement>
   ) => {
-    setType(nodeType);
-    event.dataTransfer.setData("text/plain", nodeType);
     event.dataTransfer.effectAllowed = "move";
   };
 
