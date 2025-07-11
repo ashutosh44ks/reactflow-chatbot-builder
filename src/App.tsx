@@ -4,55 +4,23 @@ import {
   useReactFlow,
   Background,
   Controls,
-  applyNodeChanges,
-  applyEdgeChanges,
-  addEdge,
   type Node,
-  type Edge,
-  type OnNodesChange,
-  type OnEdgesChange,
-  type OnConnect,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import Header from "./components/Header";
 import SettingsPanel from "./components/SettingsPanel";
 import NodesPanel from "./components/NodesPanel";
 import { useDnD } from "./hooks/useDnD";
-import {
-  DEFAULT_EDGES,
-  DEFAULT_NODES,
-  HEADER_HEIGHT,
-  nodeTypes,
-} from "./components/constants";
+import { HEADER_HEIGHT, nodeTypes } from "./components/constants";
+import useReactFlowStateHandling from "./hooks/useReactFlowStateHandling";
 
 let id = 0;
 const getId = () => `dndnode_${id++}`;
 
 export default function App() {
   // Reactflow states
-  const [nodes, setNodes] = useState<Node[]>(DEFAULT_NODES);
-  const [edges, setEdges] = useState<Edge[]>(DEFAULT_EDGES);
-  // Reactflow functions
-  const onNodesChange: OnNodesChange = useCallback(
-    (changes) =>
-      setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
-    [setNodes]
-  );
-  const onEdgesChange: OnEdgesChange = useCallback(
-    (changes) =>
-      setEdges((edgesSnapshot) => applyEdgeChanges(changes, edgesSnapshot)),
-    [setEdges]
-  );
-  const onConnect: OnConnect = useCallback(
-    (params) => {
-      // Check if source already has an outgoing edge
-      // If yes, do not allow connection
-      const sourceHasEdge = edges.some((edge) => edge.source === params.source);
-      if (!sourceHasEdge)
-        setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot));
-    },
-    [edges, setEdges]
-  );
+  const { nodes, setNodes, edges, onNodesChange, onEdgesChange, onConnect } =
+    useReactFlowStateHandling();
 
   // Sidebar states & functions
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
@@ -93,7 +61,7 @@ export default function App() {
       };
       setNodes((prev) => prev.concat(newNode));
     },
-    [screenToFlowPosition, type]
+    [screenToFlowPosition, type, setNodes]
   );
   const onDragStart: React.DragEventHandler<HTMLDivElement> = (
     event: React.DragEvent<HTMLDivElement>
