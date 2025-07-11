@@ -1,10 +1,11 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   ReactFlow,
   useReactFlow,
   Background,
   Controls,
   type Node,
+  type Edge,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import Header from "./components/Header";
@@ -19,17 +20,44 @@ const getId = () => `dndnode_${id++}`;
 
 export default function App() {
   // Reactflow states
-  const { nodes, setNodes, edges, onNodesChange, onEdgesChange, onConnect } =
+  const { nodes, setNodes, edges, onNodesChange, onEdgesChange, onConnect, onEdgeDelete } =
     useReactFlowStateHandling();
 
   // Sidebar states & functions
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null);
   const onNodeClick = useCallback(
     (_event: React.MouseEvent, node: Node) => {
       setSelectedNode(node);
+      // Clear edge selection when node is clicked
+      setSelectedEdge(null);
     },
     [setSelectedNode]
   );
+
+  const onEdgeClick = useCallback(
+    (_event: React.MouseEvent, edge: Edge) => {
+      setSelectedEdge(edge);
+      // Clear node selection when edge is clicked
+      setSelectedNode(null);
+    },
+    []
+  );
+
+  // Handle keyboard events for deletion
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Delete" || event.key === "Backspace") {
+        if (selectedEdge) {
+          onEdgeDelete(selectedEdge.id);
+          setSelectedEdge(null);
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [selectedEdge, onEdgeDelete]);
 
   // NodesPanel (DND) states & functions
   const { screenToFlowPosition } = useReactFlow();
@@ -87,6 +115,7 @@ export default function App() {
           nodeTypes={nodeTypes}
           fitView
           onNodeClick={onNodeClick}
+          onEdgeClick={onEdgeClick}
           onDrop={onDrop}
           onDragStart={onDragStart}
           onDragOver={onDragOver}

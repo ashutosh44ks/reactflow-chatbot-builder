@@ -35,6 +35,11 @@ const useReactFlowStateHandling = () => {
     },
     [edges, setEdges]
   );
+
+  const onEdgeDelete = useCallback((edgeId: string) => {
+    setEdges((edges) => edges.filter((edge) => edge.id !== edgeId));
+  }, [setEdges]);
+
   return {
     nodes,
     setNodes,
@@ -43,6 +48,7 @@ const useReactFlowStateHandling = () => {
     onNodesChange,
     onEdgesChange,
     onConnect,
+    onEdgeDelete,
   }
 };
 
